@@ -1,5 +1,9 @@
 # Supermarket Sales & Operations Analytics
 
+![Excel](https://img.shields.io/badge/Data-Excel-217346) ![SQLite](https://img.shields.io/badge/SQL-SQLite-176A97) ![Power BI](https://img.shields.io/badge/Reporting-Power_BI-F2C811)
+
+[Data pipeline](#data-preparation-and-sql) · [SQL walkthrough](#sql-walkthrough) · [Power BI screenshots](#power-bi-report)
+
 This project brings sales, customer behavior, inventory and store operations into one Power BI report. It helps answer which products earn the most profit, how results change by month, and when queue times warrant a closer look at staffing.
 
 [Download the Power BI report](power-bi/Supermarket_Sales_Analysis.pbix) · [Clean workbook](data/Supermarket_Sales_Clean.xlsx) · [RAW workbook](data/Supermarket_Sales_RAW.xlsx)
@@ -10,10 +14,38 @@ This project brings sales, customer behavior, inventory and store operations int
 
 The RAW workbook is derived from the supplied clean workbook. We used it to build and verify an end-to-end cleaning workflow. The input contains sales lines, inventory records and hourly operations observations, supported by date, store, product and customer dimensions.
 
+## SQL walkthrough
+
+![Three stages of the SQLite workflow: staging as text, cleaning and typing, and reconciliation against Clean Excel](screenshots/sql-workflow.svg)
+
+| Table group | Grain | Final rows |
+| --- | --- | ---: |
+| Date, store, product, customer | One row per dimension key | 1,096 / 8 / 15 / 2,500 |
+| Sales | One line within an order | 244,233 |
+| Inventory | Stock observation by date, store and product | 4,320 |
+| Operations | Hourly observation by date and store | 43,800 |
+
 1. **Load into staging.** The runner imports all seven sheets into `stg_*` tables as text. That preserves spaces, decimal commas and duplicate rows for profiling before any cast or join can hide them.
 2. **Profile and clean.** [Profiling SQL](sql/01_profile.sql) finds the repeated product key and the fields with formatting defects. [Publishing SQL](sql/02_publish.sql) trims labels, normalizes decimal commas, casts quantities and costs, and removes the exact product replay. It preserves individual sales lines because an order can contain several lines. Unique dimension indexes prevent a duplicated lookup from multiplying sales in joins.
 3. **Validate and reconcile.** [Validation SQL](sql/03_validate.sql) stops on missing dimension keys or invalid sales, stock or operations values. The runner compares all final records, including row multiplicities, with the supplied clean workbook.
 4. **Analyze.** [Analytical SQL](sql/04_analysis.sql) computes net sales, cost, profit and margin, compares profit across consecutive calendar months, ranks products by gross profit, and compares staffing and queues by hour.
+
+🔍 The profiling query finds product keys that appear more than once.
+
+```sql
+SELECT ProductID, COUNT(*) AS occurrences
+FROM stg_DimProduct
+GROUP BY ProductID
+HAVING COUNT(*) > 1;
+```
+
+This returned product key `1` twice. The publish step collapses identical normalized product rows, then a unique index rejects any remaining duplicate key. If rows share a key but disagree on product attributes, that index surfaces the conflict. The sales table keeps its line grain throughout the load.
+
+| Check | What it protects |
+| --- | --- |
+| Dimension keys exist for sales, inventory and operations | Missing lookup rows cannot silently disappear from analytical joins. |
+| Quantities, prices, discounts, stock and queue values pass range checks | Invalid inputs cannot silently reach the verified output. |
+| Full rows and multiplicities match the clean workbook | A lost row or a changed value is detected even when a simple count still matches. |
 
 Run `python scripts/run_pipeline.py` from the repository directory with Python 3. SQLite is included with Python and the runner uses an in-memory database.
 
