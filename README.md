@@ -6,16 +6,7 @@ This project brings sales, customer behavior, inventory and store operations int
 
 ## Data preparation and SQL
 
-```mermaid
-flowchart LR
-    A[RAW workbook] --> B[Seven stg tables]
-    B --> C[Profile duplicates and formats]
-    C --> D[Publish typed final tables]
-    D --> E[Validate keys and reconcile rows]
-    E --> F[Run analytical SQL]
-    G[Clean workbook] --> E
-    G --> H[Power BI report]
-```
+[![Data pipeline from RAW Excel through SQLite staging, cleaning and reconciliation to SQL analysis. Clean Excel also feeds Power BI.](screenshots/data-pipeline-overview.svg)](screenshots/data-pipeline-overview.svg)
 
 The RAW workbook is derived from the supplied clean workbook. We used it to build and verify an end-to-end cleaning workflow. The input contains sales lines, inventory records and hourly operations observations, supported by date, store, product and customer dimensions.
 

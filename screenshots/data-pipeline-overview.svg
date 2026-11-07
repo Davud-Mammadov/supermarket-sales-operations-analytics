@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="752" viewBox="0 0 1260 752" role="img" aria-labelledby="title desc">
+<title id="title">Supermarket Sales and Operations Data Pipeline</title>
+<desc id="desc">RAW Excel passes through SQLite staging, profiling, SQL transformation and validation before analysis. Clean Excel supplies the validation baseline and feeds Power BI independently.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#466183"/></marker></defs>
+<rect width="1260" height="752" rx="24" fill="#eef4fb"/>
+<g font-family="Segoe UI, Arial, sans-serif" fill="#102b4c">
+<text x="44" y="44" font-size="16" font-weight="700" letter-spacing="3" fill="#2455a1">SUPERMARKET SALES &amp; OPERATIONS</text>
+<text x="44" y="96" font-size="46" font-weight="750">Data Pipeline</text>
+<g transform="translate(44 126)">
+<rect width="356" height="164" rx="15" fill="#fff" stroke="#b9cce3"/>
+<circle cx="32" cy="32" r="19" fill="#087850"/><text x="32" y="38" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">01</text>
+<text x="64" y="38" fill="#087850" font-size="16" font-weight="700" letter-spacing="1">RAW EXCEL</text>
+<text x="18" y="83" font-size="23" font-weight="700">Source workbook</text>
+<text x="18" y="114" font-size="18" fill="#435974">Seven sheets loaded</text><text x="18" y="139" font-size="18" fill="#435974">with source values intact</text>
+</g>
+<g transform="translate(451 126)">
+<rect width="356" height="164" rx="15" fill="#fff" stroke="#b9cce3"/>
+<circle cx="32" cy="32" r="19" fill="#1d5ac4"/><text x="32" y="38" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">02</text>
+<text x="64" y="38" fill="#1d5ac4" font-size="16" font-weight="700" letter-spacing="1">SQLITE STAGING</text>
+<text x="18" y="83" font-size="23" font-weight="700">Seven stg_* tables</text>
+<text x="18" y="114" font-size="18" fill="#435974">Load every column as text</text><text x="18" y="139" font-size="18" fill="#435974">to preserve raw formats</text>
+</g>
+<g transform="translate(858 126)">
+<rect width="356" height="164" rx="15" fill="#fff" stroke="#b9cce3"/>
+<circle cx="32" cy="32" r="19" fill="#6d43aa"/><text x="32" y="38" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">03</text>
+<text x="64" y="38" fill="#6d43aa" font-size="16" font-weight="700" letter-spacing="1">DATA PROFILING</text>
+<text x="18" y="83" font-size="23" font-weight="700">Detect input defects</text>
+<text x="18" y="114" font-size="18" fill="#435974">Find duplicate product keys,</text><text x="18" y="139" font-size="18" fill="#435974">padded text and decimal commas</text>
+</g>
+<g transform="translate(858 340)">
+<rect width="356" height="164" rx="15" fill="#fff" stroke="#b9cce3"/>
+<circle cx="32" cy="32" r="19" fill="#1d5ac4"/><text x="32" y="38" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">04</text>
+<text x="64" y="38" fill="#1d5ac4" font-size="16" font-weight="700" letter-spacing="1">SQL TRANSFORM</text>
+<text x="18" y="83" font-size="23" font-weight="700">Build final tables</text>
+<text x="18" y="114" font-size="18" fill="#435974">Normalize types and labels.</text><text x="18" y="139" font-size="18" fill="#435974">Deduplicate exact product rows.</text>
+</g>
+<g transform="translate(451 340)">
+<rect width="356" height="164" rx="15" fill="#fff" stroke="#b9cce3"/>
+<circle cx="32" cy="32" r="19" fill="#087850"/><text x="32" y="38" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">05</text>
+<text x="64" y="38" fill="#087850" font-size="16" font-weight="700" letter-spacing="1">VALIDATION</text>
+<text x="18" y="83" font-size="23" font-weight="700">Reconcile all seven tables</text>
+<text x="18" y="114" font-size="18" fill="#435974">Check keys and match every</text><text x="18" y="139" font-size="18" fill="#435974">record against Clean Excel.</text>
+</g>
+<g transform="translate(44 340)">
+<rect width="356" height="164" rx="15" fill="#fff" stroke="#b9cce3"/>
+<circle cx="32" cy="32" r="19" fill="#6d43aa"/><text x="32" y="38" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">06</text>
+<text x="64" y="38" fill="#6d43aa" font-size="16" font-weight="700" letter-spacing="1">ANALYTICAL SQL</text>
+<text x="18" y="83" font-size="23" font-weight="700">Calculate business KPIs</text>
+<text x="18" y="114" font-size="18" fill="#435974">Sales, profit and margin.</text><text x="18" y="139" font-size="18" fill="#435974">Product rankings and queues.</text>
+</g>
+<g fill="none" stroke="#466183" stroke-width="3" marker-end="url(#arrow)">
+<path d="M406 208H442"/><path d="M813 208H849"/><path d="M1036 296V331"/><path d="M851 422H816"/><path d="M444 422H409"/>
+<path d="M629 553V513"/><path d="M813 604H849"/>
+</g>
+<rect x="451" y="554" width="356" height="100" rx="15" fill="#e0f4e9" stroke="#a1cdb8"/>
+<text x="469" y="589" font-size="23" font-weight="700">Clean Excel</text>
+<text x="469" y="622" font-size="17" fill="#34594d">Reference for row-by-row checks</text>
+<rect x="858" y="554" width="356" height="100" rx="15" fill="#fff3d2" stroke="#e2c77e"/>
+<text x="876" y="589" font-size="23" font-weight="700">Power BI</text>
+<text x="876" y="622" font-size="17" fill="#675322">Interactive sales and operations report</text>
+<path d="M44 687H1214" stroke="#b9cce3"/>
+<text x="44" y="720" font-size="18" font-weight="700">7 tables reconciled</text>
+<text x="451" y="720" font-size="18" font-weight="700">244,233 sales lines verified</text>
+<text x="858" y="720" font-size="18" font-weight="700">97,529 distinct orders</text>
+</g></svg>
