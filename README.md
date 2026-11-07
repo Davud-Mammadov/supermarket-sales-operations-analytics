@@ -2,7 +2,7 @@
 
 ![Excel](https://img.shields.io/badge/Data-Excel-217346) ![Microsoft SQL Server](https://img.shields.io/badge/Database-Microsoft_SQL_Server-BA2027) ![Power BI](https://img.shields.io/badge/Reporting-Power_BI-F2C811)
 
-[Data pipeline](#data-preparation-and-sql) · [SQL walkthrough](#sql-walkthrough) · [Power BI screenshots](#power-bi-report)
+[Data pipeline](#data-preparation-and-sql) · [SQL walkthrough](#sql-walkthrough) · [Findings](#what-the-data-shows) · [Power BI screenshots](#power-bi-report) · [Reproduce the analysis](#reproduce-the-analysis)
 
 This project brings sales, customer behavior, inventory and store operations into one Power BI report. It helps answer which products earn the most profit, how results change by month, and when queue times warrant a closer look at staffing.
 
@@ -47,18 +47,42 @@ This returned product key `1` twice. The publish step collapses identical normal
 | Quantities, prices, discounts, stock and queue values pass range checks | Invalid inputs cannot silently reach the verified output. |
 | Full rows and multiplicities match the clean workbook | A lost row or a changed value is detected even when a simple count still matches. |
 
-### Results on Microsoft SQL Server
+Profiling found one duplicate product row, four padded product names, 35 padded quantities and 35 costs stored with a decimal comma. The reconciliation matched all seven tables against the clean workbook.
 
-The reconciliation matched all seven tables, including **244,233 sales lines across 97,529 orders**. Profiling found one duplicate product row, four padded product names, 35 padded quantities and 35 costs stored with a decimal comma.
+## What the data shows
 
-| KPI | SQL result |
+These benchmarks come from the full dataset after staging and validation in Microsoft SQL Server. Clear the report filters before comparing totals.
+
+| KPI | Full dataset |
 | --- | ---: |
+| Sales lines | 244,233 |
+| Distinct orders | 97,529 |
 | Net sales | 8,849,924.28 |
-| Cost | 7,996,112.74 |
+| Product cost | 7,996,112.74 |
 | Gross profit | 853,811.54 |
 | Gross margin | 9.65% |
 
-Sobsan Detergent led product profit at **109,463.10**. Between 18:00 and 20:00, average queues were **35–35.5 minutes** with about three staff on duty. At 17:00 and 21:00, they averaged **5.7 minutes** with about 5.5 staff. This identifies hours to investigate before changing staffing.
+| Rank | Product | Gross profit |
+| ---: | --- | ---: |
+| 1 | Sobsan Detergent | 109,463.10 |
+| 2 | Ferrero Rocher | 90,721.77 |
+| 3 | Pasha Coffee Gold | 87,308.30 |
+| 4 | Sunflower Oil | 85,954.24 |
+| 5 | Organic Honey | 79,168.15 |
+
+Sobsan Detergent generated **418.93K in net sales** at a **26.13% gross margin**, leading the assortment in gross profit. Its margin was 16.48 percentage points above the overall margin.
+
+| Hour | Average queue (min) | Average staff |
+| --- | ---: | ---: |
+| 17:00 | 5.68 | 5.51 |
+| 18:00 | 35.28 | 3.00 |
+| 19:00 | 35.02 | 3.01 |
+| 20:00 | 35.45 | 2.98 |
+| 21:00 | 5.71 | 5.51 |
+
+The evening queue increase coincides with lower staffing. The 18:00–20:00 window is a starting point for comparing staffing and customer traffic by store and day before changing schedules.
+
+Net sales equal quantity × transaction unit price × (1 − discount percentage ÷ 100). Gross profit subtracts quantity × unit cost from net sales. Gross margin divides gross profit by net sales.
 
 ## Power BI report
 
@@ -99,3 +123,12 @@ Hover over a product point to see its key metrics. Drill through from the point 
 ![Product tooltip for Sobsan Detergent](screenshots/tooltip.png)
 
 ![Product drill-through for Sobsan Detergent](screenshots/drill-through.png)
+
+## Reproduce the analysis
+
+The screenshots and results above are ready to review on GitHub. If you want to verify the SQL results yourself, use a fresh Microsoft SQL Server database and SQL Server Management Studio (SSMS).
+
+1. Start with the [RAW Excel workbook](data/Supermarket_Sales_RAW.xlsx). On a copy, format the date columns in `DimDate`, `FactInventory` and `FactOperations` as numbers with zero decimal places before exporting. The T-SQL expects Excel date serials in those columns. Export each sheet to its own UTF-8 CSV, retaining headers, quoting and the original text values.
+2. In SSMS, use the flat-file import wizard to load the seven CSVs into the `dbo` schema. Prefix each original sheet name with `stg_`, for example `dbo.stg_FactSales`. Set each staging column to `nvarchar(255)` to preserve formatting differences before profiling.
+3. Run [01 · Profile](sql/01_profile.sql), [02 · Publish](sql/02_publish.sql), [03 · Validate](sql/03_validate.sql) and [04 · Analyze](sql/04_analysis.sql) in order in that database. Compare the resulting row counts and KPIs with the benchmarks above. Use the [clean Excel workbook](data/Supermarket_Sales_Clean.xlsx) as the reconciliation reference.
+4. To explore Power BI, open the [PBIX](power-bi/Supermarket_Sales_Analysis.pbix) with its saved data. For a refresh, update the Power Query workbook source to your local copy of the clean Excel file.
