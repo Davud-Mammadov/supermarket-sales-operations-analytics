@@ -25,9 +25,9 @@ The RAW workbook is derived from the supplied clean workbook. We used it to buil
 | Inventory | Stock observation by date, store and product | 4,320 |
 | Operations | Hourly observation by date and store | 43,800 |
 
-1. **Load into staging.** The runner imports all seven sheets into `stg_*` tables as text. That preserves spaces, decimal commas and duplicate rows for profiling before any cast or join can hide them.
+1. **Load into staging.** We imported all seven sheets into SQL Server `dbo.stg_*` tables as Unicode text. That preserved spaces, decimal commas and duplicate rows for profiling before converting the data.
 2. **Profile and clean.** [Profiling SQL](sql/01_profile.sql) finds the repeated product key and the fields with formatting defects. [Publishing SQL](sql/02_publish.sql) trims labels, normalizes decimal commas, casts quantities and costs, and removes the exact product replay. It preserves individual sales lines because an order can contain several lines. Unique dimension indexes prevent a duplicated lookup from multiplying sales in joins.
-3. **Validate and reconcile.** [Validation SQL](sql/03_validate.sql) stops on missing dimension keys or invalid sales, stock or operations values. The runner compares all final records, including row multiplicities, with the supplied clean workbook.
+3. **Validate and reconcile.** [Validation SQL](sql/03_validate.sql) checks for missing dimension keys and invalid sales, stock or operations values. We also compared the final records, including repeated rows, with the supplied clean workbook.
 4. **Analyze.** [Analytical SQL](sql/04_analysis.sql) computes net sales, cost, profit and margin, compares profit across consecutive calendar months, ranks products by gross profit, and compares staffing and queues by hour.
 
 🔍 The profiling query finds product keys that appear more than once.
@@ -47,17 +47,7 @@ This returned product key `1` twice. The publish step collapses identical normal
 | Quantities, prices, discounts, stock and queue values pass range checks | Invalid inputs cannot silently reach the verified output. |
 | Full rows and multiplicities match the clean workbook | A lost row or a changed value is detected even when a simple count still matches. |
 
-### Run on Microsoft SQL Server
-
-Create a dedicated empty database on SQL Server 2017 or later. Install Python 3 and Microsoft ODBC Driver 18 for SQL Server. From the repository directory, configure the connection and start the loader. This PowerShell example uses Windows authentication and a trusted local development instance.
-
-```powershell
-python -m pip install -r requirements.txt
-$env:SUPERMARKET_SQLSERVER = 'Driver={ODBC Driver 18 for SQL Server};Server=localhost;Database=SupermarketPortfolio;Trusted_Connection=yes;Encrypt=yes;TrustServerCertificate=yes'
-python scripts/run_pipeline.py
-```
-
-Adjust the server and database names for your environment. The loader creates seven Unicode `dbo.stg_*` tables and runs the four T-SQL files in order. It commits the staging, final and reference tables only after the validations, full-row reconciliation and analytical queries succeed. Use a fresh database for another run.
+### Results on Microsoft SQL Server
 
 The reconciliation matched all seven tables, including **244,233 sales lines across 97,529 orders**. Profiling found one duplicate product row, four padded product names, 35 padded quantities and 35 costs stored with a decimal comma.
 
