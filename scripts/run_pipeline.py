@@ -1,9 +1,12 @@
-"""Load the workbooks into SQLite and reconcile all seven final tables."""
+"""Load the workbooks into SQL Server and reconcile all seven final tables."""
 from collections import Counter
+from itertools import islice
+import os
 from pathlib import Path
-import sqlite3
 import xml.etree.ElementTree as ET
 from zipfile import ZipFile
+
+import pyodbc
 
 ROOT = Path(__file__).resolve().parents[1]
 TEXT = {"StoreName", "City", "StoreType", "ProductName", "Category",
@@ -12,7 +15,7 @@ REAL = {"BasePrice", "UnitPrice", "UnitCost", "DiscountPct", "AvgQueueMinutes"}
 
 
 def quote(name):
-    return '"' + name.replace('"', '""') + '"'
+    return "[" + name.replace("]", "]]") + "]"
 
 
 def load_book(db, filename, prefix):
@@ -34,8 +37,9 @@ def load_book(db, filename, prefix):
             with book.open(f"xl/worksheets/sheet{i}.xml") as stream:
                 rows = (e for _, e in ET.iterparse(stream) if e.tag.endswith("}row"))
                 headers = [value(cell) for cell in next(rows)]
-                table = quote(prefix + name)
-                db.execute(f"CREATE TABLE {table} (" + ", ".join(quote(h) + " TEXT" for h in headers) + ")")
+                table = "dbo." + quote(prefix + name)
+                columns = ", ".join(quote(h) + " nvarchar(255)" for h in headers)
+                db.execute(f"CREATE TABLE {table} ({columns})")
 
                 def records():
                     for row in rows:
@@ -45,7 +49,13 @@ def load_book(db, filename, prefix):
                         yield values
                         row.clear()
 
-                db.executemany(f"INSERT INTO {table} VALUES ({','.join('?' for _ in headers)})", records())
+                cursor = db.cursor()
+                cursor.fast_executemany = True
+                statement = f"INSERT INTO {table} VALUES ({','.join('?' for _ in headers)})"
+                source = records()
+                while batch := list(islice(source, 1000)):
+                    cursor.executemany(statement, batch)
+                cursor.close()
                 yield name, headers
 
 
@@ -54,32 +64,38 @@ def clean_reference(row, headers):
                  for h, v in zip(headers, row))
 
 
+def run_sql(db, filename):
+    cursor = db.execute((ROOT / "sql" / filename).read_text(encoding="utf-8"))
+    while True:
+        if cursor.description:
+            print([column[0] for column in cursor.description])
+            for row in cursor:
+                print(tuple(row))
+        if not cursor.nextset():
+            break
+    cursor.close()
+
+
 def main():
-    with sqlite3.connect(":memory:") as db:
+    connection_string = os.environ.get("SUPERMARKET_SQLSERVER")
+    if not connection_string:
+        raise SystemExit("Set SUPERMARKET_SQLSERVER to an ODBC connection string for an empty project database.")
+
+    with pyodbc.connect(connection_string) as db:
+        db.execute("SET XACT_ABORT ON; SET NOCOUNT ON;")
         tables = dict(load_book(db, "Supermarket_Sales_RAW.xlsx", "stg_"))
         for name in ("01_profile.sql", "02_publish.sql", "03_validate.sql"):
-            for query in (ROOT / "sql" / name).read_text(encoding="utf-8").split(";"):
-                if query.strip():
-                    cursor = db.execute(query)
-                    if cursor.description:
-                        print(cursor.fetchall())
+            run_sql(db, name)
 
         for table, headers in load_book(db, "Supermarket_Sales_Clean.xlsx", "reference_"):
             assert tables[table] == headers
-            expected = Counter(clean_reference(row, headers) for row in db.execute("SELECT * FROM " + quote("reference_" + table)))
-            actual = Counter(db.execute("SELECT * FROM " + quote(table)))
+            expected = Counter(clean_reference(row, headers) for row in db.execute("SELECT * FROM dbo." + quote("reference_" + table)))
+            actual = Counter(tuple(row) for row in db.execute("SELECT * FROM dbo." + quote(table)))
             if expected != actual:
                 raise RuntimeError(f"{table} failed reconciliation")
             print(f"{table}: {sum(actual.values()):,} rows match")
 
-        for query in (ROOT / "sql" / "04_analysis.sql").read_text(encoding="utf-8").split(";"):
-            if query.strip():
-                cursor = db.execute(query)
-                if cursor.description is None:
-                    continue
-                print([field[0] for field in cursor.description])
-                for row in cursor:
-                    print(row)
+        run_sql(db, "04_analysis.sql")
 
 
 if __name__ == "__main__":

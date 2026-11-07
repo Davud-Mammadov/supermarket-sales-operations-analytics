@@ -1,4 +1,3 @@
-CREATE TABLE DimDate AS
 SELECT CAST(DateKey AS INTEGER) AS DateKey,
        CAST(Date AS INTEGER) AS Date,
        CAST(Year AS INTEGER) AS Year,
@@ -8,31 +7,31 @@ SELECT CAST(DateKey AS INTEGER) AS DateKey,
        CAST(Day AS INTEGER) AS Day,
        TRIM(Weekday) AS Weekday,
        CAST(IsWeekend AS INTEGER) AS IsWeekend
-FROM stg_DimDate;
+INTO dbo.DimDate
+FROM dbo.stg_DimDate;
 
-CREATE TABLE DimStore AS
 SELECT CAST(StoreID AS INTEGER) AS StoreID,
        TRIM(StoreName) AS StoreName,
        TRIM(City) AS City,
        TRIM(StoreType) AS StoreType
-FROM stg_DimStore;
+INTO dbo.DimStore
+FROM dbo.stg_DimStore;
 
-CREATE TABLE DimProduct AS
 SELECT DISTINCT CAST(ProductID AS INTEGER) AS ProductID,
        TRIM(ProductName) AS ProductName,
        TRIM(Category) AS Category,
        TRIM(Segment) AS Segment,
-       CAST(REPLACE(TRIM(BasePrice), ',', '.') AS REAL) AS BasePrice
-FROM stg_DimProduct;
+       CAST(REPLACE(TRIM(BasePrice), ',', '.') AS FLOAT(53)) AS BasePrice
+INTO dbo.DimProduct
+FROM dbo.stg_DimProduct;
 
-CREATE TABLE DimCustomer AS
 SELECT CAST(CustomerID AS INTEGER) AS CustomerID,
        TRIM(CustomerName) AS CustomerName,
        TRIM(Segment) AS Segment,
        CAST(RegistrationYear AS INTEGER) AS RegistrationYear
-FROM stg_DimCustomer;
+INTO dbo.DimCustomer
+FROM dbo.stg_DimCustomer;
 
-CREATE TABLE FactSales AS
 SELECT CAST(OrderID AS INTEGER) AS OrderID,
        CAST(DateKey AS INTEGER) AS DateKey,
        CAST(StoreID AS INTEGER) AS StoreID,
@@ -40,28 +39,29 @@ SELECT CAST(OrderID AS INTEGER) AS OrderID,
        CAST(ProductID AS INTEGER) AS ProductID,
        CAST(OrderHour AS INTEGER) AS OrderHour,
        CAST(Quantity AS INTEGER) AS Quantity,
-       CAST(REPLACE(TRIM(UnitPrice), ',', '.') AS REAL) AS UnitPrice,
-       CAST(REPLACE(TRIM(DiscountPct), ',', '.') AS REAL) AS DiscountPct,
-       CAST(REPLACE(TRIM(UnitCost), ',', '.') AS REAL) AS UnitCost
-FROM stg_FactSales;
+       CAST(REPLACE(TRIM(UnitPrice), ',', '.') AS FLOAT(53)) AS UnitPrice,
+       CAST(REPLACE(TRIM(DiscountPct), ',', '.') AS FLOAT(53)) AS DiscountPct,
+       CAST(REPLACE(TRIM(UnitCost), ',', '.') AS FLOAT(53)) AS UnitCost
+INTO dbo.FactSales
+FROM dbo.stg_FactSales;
 
-CREATE TABLE FactInventory AS
 SELECT CAST(InventoryDate AS INTEGER) AS InventoryDate,
        CAST(StoreID AS INTEGER) AS StoreID,
        CAST(ProductID AS INTEGER) AS ProductID,
        CAST(StockQty AS INTEGER) AS StockQty
-FROM stg_FactInventory;
+INTO dbo.FactInventory
+FROM dbo.stg_FactInventory;
 
-CREATE TABLE FactOperations AS
 SELECT CAST(Date AS INTEGER) AS Date,
        CAST(StoreID AS INTEGER) AS StoreID,
        CAST(Hour AS INTEGER) AS Hour,
        CAST(CustomersServed AS INTEGER) AS CustomersServed,
        CAST(StaffCount AS INTEGER) AS StaffCount,
-       CAST(REPLACE(TRIM(AvgQueueMinutes), ',', '.') AS REAL) AS AvgQueueMinutes
-FROM stg_FactOperations;
+       CAST(REPLACE(TRIM(AvgQueueMinutes), ',', '.') AS FLOAT(53)) AS AvgQueueMinutes
+INTO dbo.FactOperations
+FROM dbo.stg_FactOperations;
 
-CREATE UNIQUE INDEX product_key ON DimProduct(ProductID);
-CREATE UNIQUE INDEX date_key ON DimDate(DateKey);
-CREATE UNIQUE INDEX store_key ON DimStore(StoreID);
-CREATE UNIQUE INDEX customer_key ON DimCustomer(CustomerID);
+CREATE UNIQUE INDEX product_key ON dbo.DimProduct(ProductID);
+CREATE UNIQUE INDEX date_key ON dbo.DimDate(DateKey);
+CREATE UNIQUE INDEX store_key ON dbo.DimStore(StoreID);
+CREATE UNIQUE INDEX customer_key ON dbo.DimCustomer(CustomerID);

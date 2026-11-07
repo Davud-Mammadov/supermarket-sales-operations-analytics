@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 370" width="1200" height="370" role="img" aria-labelledby="title">
-<title id="title">From RAW Excel to verified SQLite tables</title>
+<title id="title">From RAW Excel to verified SQL Server tables</title>
 <rect width="1200" height="370" rx="22" fill="#edf4fc"/>
 <g font-family="Segoe UI,Arial,sans-serif">
 <text x="30" y="38" fill="#2758a1" font-size="15" font-weight="700" letter-spacing="3">SQL WORKFLOW</text>
-<text x="30" y="79" fill="#102846" font-size="32" font-weight="700">From RAW Excel to verified SQLite tables</text>
+<text x="30" y="79" fill="#102846" font-size="32" font-weight="700">From RAW Excel to verified SQL Server tables</text>
 <g transform="translate(30 105)">
 <rect width="365" height="203" rx="14" fill="#fff" stroke="#b6cbe3"/>
 <rect x="12" y="12" width="341" height="35" rx="7" fill="#125a45"/>
@@ -17,9 +17,9 @@
 <rect width="365" height="203" rx="14" fill="#fff" stroke="#b6cbe3"/>
 <rect x="12" y="12" width="341" height="35" rx="7" fill="#194a9c"/>
 <text x="24" y="35" fill="#fff" font-size="16" font-weight="700">02 / CLEAN</text>
-<text x="20" y="76" fill="#213d5c" font-family="Consolas,monospace" font-size="17">CREATE TABLE DimProduct AS</text>
-<text x="20" y="101" fill="#213d5c" font-family="Consolas,monospace" font-size="17">SELECT DISTINCT …</text>
-<text x="20" y="126" fill="#213d5c" font-family="Consolas,monospace" font-size="17">FROM stg_DimProduct;</text>
+<text x="20" y="76" fill="#213d5c" font-family="Consolas,monospace" font-size="17">SELECT DISTINCT …</text>
+<text x="20" y="101" fill="#213d5c" font-family="Consolas,monospace" font-size="17">INTO dbo.DimProduct</text>
+<text x="20" y="126" fill="#213d5c" font-family="Consolas,monospace" font-size="17">FROM dbo.stg_DimProduct;</text>
 <text x="20" y="151" fill="#213d5c" font-family="Consolas,monospace" font-size="17">CAST(…) for numeric types</text>
 </g>
 <g transform="translate(800 105)">

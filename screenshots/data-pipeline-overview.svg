@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1260" height="752" viewBox="0 0 1260 752" role="img" aria-labelledby="title desc">
 <title id="title">Supermarket Sales and Operations Data Pipeline</title>
-<desc id="desc">RAW Excel passes through SQLite staging, profiling, SQL transformation and validation before analysis. Clean Excel supplies the validation baseline and feeds Power BI independently.</desc>
+<desc id="desc">RAW Excel passes through Microsoft SQL Server staging, profiling, SQL transformation and validation before analysis. Clean Excel supplies the validation baseline and feeds Power BI independently.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#466183"/></marker></defs>
 <rect width="1260" height="752" rx="24" fill="#eef4fb"/>
 <g font-family="Segoe UI, Arial, sans-serif" fill="#102b4c">
@@ -16,7 +16,7 @@
 <g transform="translate(451 126)">
 <rect width="356" height="164" rx="15" fill="#fff" stroke="#b9cce3"/>
 <circle cx="32" cy="32" r="19" fill="#1d5ac4"/><text x="32" y="38" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">02</text>
-<text x="64" y="38" fill="#1d5ac4" font-size="16" font-weight="700" letter-spacing="1">SQLITE STAGING</text>
+<text x="64" y="38" fill="#1d5ac4" font-size="16" font-weight="700" letter-spacing="1">SQL SERVER STAGING</text>
 <text x="18" y="83" font-size="23" font-weight="700">Seven stg_* tables</text>
 <text x="18" y="114" font-size="18" fill="#435974">Load every column as text</text><text x="18" y="139" font-size="18" fill="#435974">to preserve raw formats</text>
 </g>
