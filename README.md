@@ -24,7 +24,7 @@ The RAW workbook is derived from the supplied clean workbook. We used it to buil
 3. **Validate and reconcile.** [Validation SQL](sql/03_validate.sql) stops on missing dimension keys or invalid sales, stock or operations values. The runner compares all final records, including row multiplicities, with the supplied clean workbook.
 4. **Analyze.** [Analytical SQL](sql/04_analysis.sql) computes net sales, cost, profit and margin, compares profit across consecutive calendar months, ranks products by gross profit, and compares staffing and queues by hour.
 
-Run `python run_pipeline.py` from the repository directory with Python 3. SQLite is included with Python and the runner uses an in-memory database.
+Run `python scripts/run_pipeline.py` from the repository directory with Python 3. SQLite is included with Python and the runner uses an in-memory database.
 
 The reconciliation matched all seven tables, including **244,233 sales lines across 97,529 orders**. Profiling found one duplicate product row, four padded product names, 35 padded quantities and 35 costs stored with a decimal comma.
 

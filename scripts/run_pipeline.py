@@ -5,7 +5,7 @@ import sqlite3
 import xml.etree.ElementTree as ET
 from zipfile import ZipFile
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 TEXT = {"StoreName", "City", "StoreType", "ProductName", "Category",
         "Segment", "CustomerName", "MonthName", "Weekday"}
 REAL = {"BasePrice", "UnitPrice", "UnitCost", "DiscountPct", "AvgQueueMinutes"}
